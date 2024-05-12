@@ -63,7 +63,7 @@ namespace WorkingCalendar.Server.Infrastructure
 
         public string GetYearWorkingCalendar(string year)
         {
-            var ret = Environment.NewLine + "INSERT INTO [dbo].[WorkingCalendar] ([DateDay], [IsWorkingDay]) VALUES (";
+            var ret = "INSERT INTO [WorkingCalendar] ([DateDay], [IsWorkingDay]) VALUES (";
             _workingCalendarXml.TryGetValue(year, out var xDocument);
             var desc = xDocument.Root.Element("holidays").Elements("holiday");
             var days = xDocument.Root.Element("days").Elements("day");
@@ -75,14 +75,14 @@ namespace WorkingCalendar.Server.Infrastructure
                 var result = CheckDay(desc, days, day, dw);
                 if (result == "рабочий день")
                 {
-                    ret += Environment.NewLine + $"'{day.ToString("yyyy-MM-dd")}', 1";
+                    ret += $"('{day.ToString("yyyy-MM-dd")}', 1),";
                 }
                 else
                 {
-                    ret += Environment.NewLine + $"'{day.ToString("yyyy-MM-dd")}', 0";
+                    ret += $"('{day.ToString("yyyy-MM-dd")}', 0),";
                 }
             }
-            ret += Environment.NewLine + ")" + Environment.NewLine;
+            ret = ret.Substring(0, ret.Length - 1) + ")";
             return ret;
         }
 
