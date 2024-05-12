@@ -1,0 +1,6 @@
+@WorkingCalendar.Server_HostAddress = http://localhost:5104
+
+GET {{WorkingCalendar.Server_HostAddress}}/GetWorkingCalendar/
+Accept: application/json
+
+###
