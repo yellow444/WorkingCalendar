@@ -1,15 +1,6 @@
 using System.Net;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
-using Newtonsoft.Json;
-
-using Swashbuckle.AspNetCore.Annotations;
 
 using WorkingCalendar.Server.Infrastructure.Services;
 
@@ -32,17 +23,18 @@ namespace WorkingCalendar.Server.Controllers
         /// dd.MM.yyyy
         /// </summary>
         /// <param name="data">dd.MM.yyyy</param>
+        /// <param name="days"></param>
         /// <returns>string</returns>
         [HttpGet]
         [Route("CheckDayWorkingCalendar")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [Produces("text/plain")]
-        public async Task<IActionResult> CheckDayWorkingCalendar(string data)
+        public async Task<IActionResult> CheckDayWorkingCalendar(string data, string days = "5")
         {
             try
             {
-                var result = await _workingCalendarService.CheckDayWorkingCalendar(data);
+                var result = await _workingCalendarService.CheckDayWorkingCalendar(data, days);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -56,17 +48,19 @@ namespace WorkingCalendar.Server.Controllers
         /// yyyy
         /// </summary>
         /// <param name="year">yyyy</param>
+        /// <param name="type"></param>
+        /// <param name="days"></param>
         /// <returns>string</returns>
         [HttpGet]
         [Route("GetYearWorkingCalendar")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         [Produces("text/plain")]
-        public async Task<IActionResult> GetYearWorkingCalendar(string year)
+        public async Task<IActionResult> GetYearWorkingCalendar(string year, string type = "mssql", string days = "5")
         {
             try
             {
-                var result = await _workingCalendarService.GetYearWorkingCalendar(year);
+                var result = await _workingCalendarService.GetYearWorkingCalendar(year, type, days);
                 return Ok(result);
             }
             catch (Exception ex)

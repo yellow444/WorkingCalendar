@@ -1,40 +1,48 @@
 version: '3.4'
 
 services:
-  workingcalendar.server:
-    image: ${DOCKER_REGISTRY-}workingcalendarserver
-    hostname: workingcalendar.server
-    container_name: workingcalendar.server
+  workingcalendar-server:
+    image: yellow444/workingcalendarserver:latest
+    hostname: workingcalendar-server
+    container_name: workingcalendar-server
     build:
       context: .
       dockerfile: workingcalendar.server/Dockerfile
     ports:
-      - 21080:21080
-      - 21443:21443
-    networks:
-      workingcalendar:
-  workingcalendar.postgres:
+      - 20080:20080
+      # - 20443:20443
+    labels:
+      kompose.service.expose: "workingcalendar.ru"
+      kompose.controller.type: "deployment"
+      # kompose.service.type: "NodePort"
+    # networks:
+    #   workingcalendar:
+  workingcalendar-postgres:
     image: postgres
-    hostname: workingcalendar.postgres
-    container_name: workingcalendar.postgres
+    hostname: workingcalendar-postgres
+    container_name: workingcalendar-postgres
     environment:
       - POSTGRES_PASSWORD=workingcalendar
       - POSTGRES_ADMIN=workingcalendar
     ports:
       - 5432:5432
-    networks:
-      workingcalendar:
+    labels:
+      kompose.controller.type: "deployment"
+      kompose.service.type: "headless"
+      kompose.volume.type: "persistentVolumeClaim"
+    # networks:
+    #   workingcalendar:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.pssql:/docker-entrypoint-initdb.d/db.sql
 volumes:
   pgdata:
 
-networks:
-    workingcalendar:
+# networks:
+#     workingcalendar:
         # Общая сеть со смежными проектами
-        name: 'workingcalendar'
-        enable_ipv6: false
+        # name: 'workingcalendar'
+        # enable_ipv6: false
         # ipam:
         #   config:
         #     - subnet: 2001:0DB8::/112

@@ -1,19 +1,14 @@
-﻿using System.Globalization;
-using System.IO;
-using System.Net.WebSockets;
+﻿using System;
+using System.Globalization;
 using System.Xml.Linq;
-using System.Xml.XPath;
-
-using Microsoft.VisualBasic;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WorkingCalendar.Server.Infrastructure
 {
     public interface IWorkingCalendarRepository
     {
-        string? CheckDayWorkingCalendar(string data);
-        string GetYearWorkingCalendar(string year);
+        string? CheckDayWorkingCalendar(string data, string days);
+
+        string GetYearWorkingCalendar(string year, string type, string days);
     }
 
     public class WorkingCalendarRepository : IWorkingCalendarRepository
@@ -49,52 +44,91 @@ namespace WorkingCalendar.Server.Infrastructure
             }
         }
 
-        public string? CheckDayWorkingCalendar(string data)
+        public string? CheckDayWorkingCalendar(string data, string days)
         {
             string format = "dd.MM.yyyy";
             DateTime.TryParseExact(data, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var day);
             var dw = (int)day.DayOfWeek;
             _workingCalendarXml.TryGetValue(day.Year.ToString(), out var xDocument);
-            var desc = xDocument.Root.Element("holidays").Elements("holiday");
-            var days = xDocument.Root.Element("days").Elements("day");
-            var result = CheckDay(desc, days, day, dw);
+            var desc = xDocument?.Root?.Element("holidays")?.Elements("holiday");
+            var daysList = xDocument?.Root?.Element("days")?.Elements("day");
+            var result = CheckDay(desc, daysList, day, dw, days);
             return result;
         }
 
-        public string GetYearWorkingCalendar(string year)
+        public string GetYearWorkingCalendar(string year, string type, string days)
         {
-            var ret = "INSERT INTO [WorkingCalendar] ([DateDay], [IsWorkingDay]) VALUES (";
-            _workingCalendarXml.TryGetValue(year, out var xDocument);
-            var desc = xDocument.Root.Element("holidays").Elements("holiday");
-            var days = xDocument.Root.Element("days").Elements("day");
-            var y = DateTime.IsLeapYear(int.Parse(year)) ? 366 : 365;
-            for (DateTime day = new DateTime(int.Parse(year), 1, 1); day <= new DateTime(year: int.Parse(year), 12, 31); day = day.AddDays(1))
-            {
-                var dw = (int)day.DayOfWeek;
+            var ret = "";//type + Environment.NewLine + Environment.NewLine;
 
-                var result = CheckDay(desc, days, day, dw);
-                if (result == "рабочий день")
-                {
-                    ret += $"('{day.ToString("yyyy-MM-dd")}', 1),";
-                }
-                else
-                {
-                    ret += $"('{day.ToString("yyyy-MM-dd")}', 0),";
-                }
+            switch (type)
+            {
+                case "mssql":
+                    {
+                        ret += "CREATE TABLE WorkingCalendar (id bigint IDENTITY NOT NULL, DateDay date NOT NULL, IsWorkingDay bit  NOT NULL);";
+                        break;
+                    }
+                case "mysql":
+                    {
+                        ret += "CREATE TABLE WorkingCalendar (  id INTEGER PRIMARY KEY AUTO_INCREMENT,  DateDay DATE NOT NULL,  IsWorkingDay BIT NOT NULL);";
+                        break;
+                    }
+                case "postgresql":
+                    {
+                        ret += "CREATE TABLE WorkingCalendar (id SERIAL PRIMARY KEY, DateDay date NOT NULL, IsWorkingDay bit NOT NULL);";
+                        break;
+                    }
+                default:
+                    { break; }
             }
-            ret = ret.Substring(0, ret.Length - 1) + ")";
+
+            ret += Environment.NewLine + Environment.NewLine + "INSERT INTO WorkingCalendar (DateDay, IsWorkingDay) VALUES ";
+            var all = year;
+            year = all == "all" ? "2013" : year;
+            do
+            {
+                _workingCalendarXml.TryGetValue(year, out var xDocument);
+                var desc = xDocument?.Root?.Element("holidays")?.Elements("holiday");
+                var daysList = xDocument?.Root?.Element("days")?.Elements("day");
+                for (DateTime day = new DateTime(int.Parse(year), month: 1, day: 1); day <= new DateTime(year: int.Parse(year), 12, 31); day = day.AddDays(1))
+                {
+                    var dw = (int)day.DayOfWeek;
+
+                    var result = CheckDay(desc, daysList, day, dw, days);
+                    var bit = type != "postgresql" ? "" : "'";
+                    if (result == "рабочий день")
+                    {                        
+                        ret += $"('{day.ToString("yyyy-MM-dd")}', {bit}1{bit}),";
+                    }
+                    else
+                    {
+                        ret += $"('{day.ToString("yyyy-MM-dd")}', {bit}0{bit}),";
+                    }
+                }
+                year = (int.Parse(year) + 1).ToString();
+            }
+            while (all == "all" && year != "2025");
+            ret = ret.Substring(0, ret.Length - 1) + ";";
             return ret;
         }
 
-        private static string CheckDay(IEnumerable<XElement> desc, IEnumerable<XElement> days, DateTime day, int dw)
+        private static string CheckDay(IEnumerable<XElement>? desc, IEnumerable<XElement>? daysList, DateTime day, int dw, string days)
         {
-            var result = dw < 6 ? "рабочий день" : "выходной день";
+            var _days = int.Parse(days);
+            var result = dw < _days + 1 && dw > 0 ? "рабочий день" : "выходной день";
             try
             {
-                var t = days.Where(x => x.Attribute("d").Value == $"{day.ToString("MM.dd")}");
-                var d = t.Attributes("d");
-                var h = t.Attributes("h").FirstOrDefault().Value;
-                result = desc.Where(x => x.Attribute("id").Value == h).Attributes("title").FirstOrDefault().Value;
+               if ( !daysList.Any(x => x.Attribute("d")?.Value == $"{day.ToString("MM.dd")}"))
+                {
+                    return result;
+                }
+                var t = daysList.Where(x => x?.Attribute("d")?.Value == $"{day.ToString("MM.dd")}");
+                //var d = t.Attributes("d");
+                var h = t?.Attributes("h")?.FirstOrDefault()?.Value;
+                if (desc?.Where(x => x?.Attribute("id")?.Value == h)?.Attributes("title")?.FirstOrDefault()?.Value == null)
+                {
+                    return result;
+                }
+                result = desc?.Where(x => x?.Attribute("id")?.Value == h)?.Attributes("title")?.FirstOrDefault()?.Value;
             }
             catch (Exception e)
             {

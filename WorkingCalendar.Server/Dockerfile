@@ -3,14 +3,13 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
-EXPOSE 9080
-EXPOSE 9081
+EXPOSE 20080
+#EXPOSE 20443
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS with-node
 RUN apt-get update
-RUN apt-get install curl
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
-RUN apt-get -y install nodejs
+RUN apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get -y install nodejs
 
 
 FROM with-node AS build
@@ -25,9 +24,13 @@ RUN dotnet build "./WorkingCalendar.Server.csproj" -c $BUILD_CONFIGURATION -o /a
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
+RUN dotnet dev-certs https --clean
+
+RUN dotnet dev-certs https --trust
 RUN dotnet publish "./WorkingCalendar.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./*.json .
 ENTRYPOINT ["dotnet", "WorkingCalendar.Server.dll"]

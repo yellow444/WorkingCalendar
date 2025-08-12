@@ -7,13 +7,31 @@
     <ProjectGuid>bb9d2295-8871-411d-b386-fce192cd70b9</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>workingcalendar.server</DockerServiceName>
+    <DockerServiceName>workingcalendar-server</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="docker-compose.Development.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
     <None Include="docker-compose.override.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.Production.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="k8s\lestencrypt-production.yaml" />
+    <None Include="k8s\lestencrypt-staging.yaml" />
+    <None Include="k8s\pgdata-persistentvolumeclaim.yaml" />
+    <None Include="k8s\ingress.yaml" />
+    <None Include="k8s\pv2.yaml" />
+    <None Include="k8s\pv1.yaml" />
+    <None Include="k8s\sc.yaml" />
+    <None Include="k8s\workingcalendar-postgres-claim1-persistentvolumeclaim.yaml" />
+    <None Include="k8s\workingcalendar-postgres-deployment.yaml" />
+    <None Include="k8s\workingcalendar-postgres-service.yaml" />
+    <None Include="k8s\workingcalendar-server-deployment.yaml" />
+    <None Include="k8s\workingcalendar-server-tcp-service.yaml" />
   </ItemGroup>
 </Project>
