@@ -38,3 +38,30 @@ country - двухбуквенный код страны
 	</days>
 </calendar>
 ```
+
+## Источник данных
+
+XML‑файлы в этой папке получены из проекта
+[`xmlcalendar/data`](https://github.com/xmlcalendar/data). Сервис
+`WorkingCalendar.Server` использует их для заполнения базы данных
+информацией о выходных и праздничных днях.
+
+### Обновление данных
+
+Чтобы получить актуальные файлы, клонируйте или обновите репозиторий
+XMLCalendar и замените каталоги с данными:
+
+```bash
+cd WorkingCalendar.Server/Data
+git clone https://github.com/xmlcalendar/data tmp-data   # первое получение
+# или, если репозиторий уже клонирован
+cd tmp-data && git pull
+cp -r tmp-data/{ru,kz,by,ua,uz} .
+```
+
+### Лицензия
+
+Календари предоставлены проектом XMLCalendar (`https://xmlcalendar.ru`).
+Данные © xmlcalendar.ru; при использовании указывайте источник и ознакомьтесь
+с условиями на их сайте.
+
