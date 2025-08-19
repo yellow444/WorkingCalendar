@@ -4,7 +4,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.FileProviders;
 using RichardSzalay.MockHttp;
-using WorkingCalendar.Server.Infrastructure.Services;
+using WorkingCalendar.Infrastructure;
+using WorkingCalendar.Infrastructure.Services;
 
 namespace WorkingCalendar.Server.Tests;
 
@@ -22,13 +23,14 @@ public class GitHubCalendarDataUpdaterTests
     public async Task UpdateDataAsync_DownloadsAndUpdates()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(Path.Combine(tempRoot, "Data"));
-        var env = new TestHostEnvironment { ContentRootPath = tempRoot };
-        var options = Options.Create(new CalendarUpdateOptions
-        {
-            DownloadUrl = "https://api.github.com/repos/xmlcalendar/data/releases/latest",
-            Countries = new[] { "ru" }
-        });
+            Directory.CreateDirectory(Path.Combine(tempRoot, "Data"));
+            var env = new TestHostEnvironment { ContentRootPath = tempRoot };
+            var options = Options.Create(new CalendarUpdateOptions
+            {
+                DownloadUrl = "https://api.github.com/repos/xmlcalendar/data/releases/latest",
+                Countries = new[] { "ru" }
+            });
+            var repoOptions = Options.Create(new CalendarRepositoryOptions { BasePath = "Data" });
 
         // create zip content
         var archiveBytes = CreateSampleArchive();
@@ -41,7 +43,7 @@ public class GitHubCalendarDataUpdaterTests
                 Content = new ByteArrayContent(archiveBytes)
             });
         var httpClient = mockHttp.ToHttpClient();
-        var updater = new GitHubCalendarDataUpdater(httpClient, options, env, NullLogger<GitHubCalendarDataUpdater>.Instance);
+            var updater = new GitHubCalendarDataUpdater(httpClient, options, repoOptions, env, NullLogger<GitHubCalendarDataUpdater>.Instance);
 
         await updater.UpdateDataAsync(CancellationToken.None);
 
@@ -52,18 +54,19 @@ public class GitHubCalendarDataUpdaterTests
     public async Task UpdateDataAsync_HandlesErrors()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(Path.Combine(tempRoot, "Data"));
-        var env = new TestHostEnvironment { ContentRootPath = tempRoot };
-        var options = Options.Create(new CalendarUpdateOptions
-        {
-            DownloadUrl = "https://api.github.com/repos/xmlcalendar/data/releases/latest",
-            Countries = new[] { "ru" }
-        });
+            Directory.CreateDirectory(Path.Combine(tempRoot, "Data"));
+            var env = new TestHostEnvironment { ContentRootPath = tempRoot };
+            var options = Options.Create(new CalendarUpdateOptions
+            {
+                DownloadUrl = "https://api.github.com/repos/xmlcalendar/data/releases/latest",
+                Countries = new[] { "ru" }
+            });
+            var repoOptions = Options.Create(new CalendarRepositoryOptions { BasePath = "Data" });
         var mockHttp = new MockHttpMessageHandler();
         mockHttp.When(options.Value.DownloadUrl)
             .Respond(System.Net.HttpStatusCode.InternalServerError);
         var httpClient = mockHttp.ToHttpClient();
-        var updater = new GitHubCalendarDataUpdater(httpClient, options, env, NullLogger<GitHubCalendarDataUpdater>.Instance);
+            var updater = new GitHubCalendarDataUpdater(httpClient, options, repoOptions, env, NullLogger<GitHubCalendarDataUpdater>.Instance);
 
         await updater.UpdateDataAsync(CancellationToken.None);
 

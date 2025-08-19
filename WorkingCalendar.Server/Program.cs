@@ -1,83 +1,54 @@
+using System.Globalization;
 using System.Reflection;
+using WorkingCalendar.Application;
+using WorkingCalendar.Infrastructure;
+using WorkingCalendar.Infrastructure.Services;
 
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+var builder = WebApplication.CreateBuilder(args);
 
-using WorkingCalendar.Server.Infrastructure;
-using WorkingCalendar.Server.Infrastructure.Services;
-
-internal class Program
+builder.Services.Configure<CalendarRepositoryOptions>(builder.Configuration.GetSection("CalendarData"));
+builder.Services.AddSingleton<ICalendarRepository, FileCalendarRepository>();
+builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.Configure<CalendarUpdateOptions>(builder.Configuration.GetSection("CalendarUpdate"));
+builder.Services.AddHttpClient<GitHubCalendarDataUpdater>(client =>
 {
-    private static void Main(string[] args)
-    {
-        var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-        var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddSingleton<IWorkingCalendarRepository, WorkingCalendarRepository > ();
-        builder.Services.AddTransient<IWorkingCalendarService, WorkingCalendarService>();
-        builder.Services.Configure<CalendarUpdateOptions>(builder.Configuration.GetSection("CalendarUpdate"));
-        builder.Services.AddHttpClient<GitHubCalendarDataUpdater>(client =>
-        {
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("WorkingCalendar.Server");
-        });
-        builder.Services.AddSingleton<ICalendarDataUpdater, GitHubCalendarDataUpdater>();
-        builder.Services.AddHostedService<CalendarUpdateWorker>();
-        // Add services to the container.
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy(name: MyAllowSpecificOrigins,
-                              builder =>
-                              {
-                                  builder.WithOrigins("http://231977.fornex.cloud",
-                                                      "https://231977.fornex.cloud",
-                                                      "http://localhost",
-                                                      "https://localhost",
-                                                      "http://localhost:3000",
-                                                      "https://localhost:3000");
-                              });
-        });
-        builder.Services.AddControllers().AddXmlDataContractSerializerFormatters();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddHealthChecks();
-        builder.Services.AddSwaggerGen(options =>
-        {
-            //var basePath = AppContext.BaseDirectory;
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("WorkingCalendar.Server");
+});
+builder.Services.AddSingleton<ICalendarDataUpdater, GitHubCalendarDataUpdater>();
+builder.Services.AddHostedService<CalendarUpdateWorker>();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+builder.Services.AddHealthChecks();
 
-            //var xmlPath = Path.Combine(basePath, "ShopAPI.xml");
-            //options.IncludeXmlComments(xmlPath);
+var app = builder.Build();
 
-            // using System.Reflection;
-            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-        });
+app.UseHealthChecks("/hc");
 
-        var app = builder.Build();
-        //app.UseForwardedHeaders();
-        app.UseDefaultFiles();
-       
-        app.UseHealthChecks("/hc");
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            Console.WriteLine("Development");
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Error");
-            //app.UseHsts();
-        }
-        //app.UseHttpsRedirection();
-        app.UseStaticFiles();
-        app.UseCors(MyAllowSpecificOrigins);
-        app.UseAuthorization();
-
-        app.MapControllers();
-
-        app.MapFallbackToFile("/index.html");
-
-        app.Run();
-    }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+else
+{
+    app.UseExceptionHandler("/Error");
+}
+
+app.MapGet("/CheckDayWorkingCalendar", async (string data, string days, ICalendarService service) =>
+{
+    var date = DateTime.ParseExact(data, "dd.MM.yyyy", CultureInfo.InvariantCulture);
+    var result = await service.CheckDayAsync(date, int.Parse(days));
+    return Results.Ok(result);
+}).WithName("CheckDayWorkingCalendar");
+
+app.MapGet("/GetYearWorkingCalendar", async (string year, string type, string days, ICalendarService service) =>
+{
+    var result = await service.GetYearSqlAsync(int.Parse(year), type, int.Parse(days));
+    return Results.Ok(result);
+}).WithName("GetYearWorkingCalendar");
+
+app.Run();
