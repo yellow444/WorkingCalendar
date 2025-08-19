@@ -15,6 +15,13 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddSingleton<IWorkingCalendarRepository, WorkingCalendarRepository > ();
         builder.Services.AddTransient<IWorkingCalendarService, WorkingCalendarService>();
+        builder.Services.Configure<CalendarUpdateOptions>(builder.Configuration.GetSection("CalendarUpdate"));
+        builder.Services.AddHttpClient<GitHubCalendarDataUpdater>(client =>
+        {
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("WorkingCalendar.Server");
+        });
+        builder.Services.AddSingleton<ICalendarDataUpdater, GitHubCalendarDataUpdater>();
+        builder.Services.AddHostedService<CalendarUpdateWorker>();
         // Add services to the container.
         builder.Services.AddCors(options =>
         {
