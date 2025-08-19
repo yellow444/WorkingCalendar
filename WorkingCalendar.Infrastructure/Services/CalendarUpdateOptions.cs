@@ -1,6 +1,6 @@
 using System;
 
-namespace WorkingCalendar.Server.Infrastructure.Services
+namespace WorkingCalendar.Infrastructure.Services
 {
     public class CalendarUpdateOptions
     {

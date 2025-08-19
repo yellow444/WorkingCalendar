@@ -2,8 +2,11 @@ using System.IO.Compression;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace WorkingCalendar.Server.Infrastructure.Services
+using WorkingCalendar.Infrastructure;
+
+namespace WorkingCalendar.Infrastructure.Services
 {
     public interface ICalendarDataUpdater
     {
@@ -17,12 +20,15 @@ namespace WorkingCalendar.Server.Infrastructure.Services
         private readonly CalendarUpdateOptions _options;
         private readonly string _dataPath;
 
-        public GitHubCalendarDataUpdater(HttpClient httpClient, IOptions<CalendarUpdateOptions> options, IHostEnvironment env, ILogger<GitHubCalendarDataUpdater> logger)
+        public GitHubCalendarDataUpdater(HttpClient httpClient, IOptions<CalendarUpdateOptions> options, IOptions<CalendarRepositoryOptions> repoOptions, IHostEnvironment env, ILogger<GitHubCalendarDataUpdater> logger)
         {
             _httpClient = httpClient;
             _options = options.Value;
             _logger = logger;
-            _dataPath = Path.Combine(env.ContentRootPath, "Data");
+            var basePath = Path.IsPathRooted(repoOptions.Value.BasePath)
+                ? repoOptions.Value.BasePath
+                : Path.Combine(env.ContentRootPath, repoOptions.Value.BasePath);
+            _dataPath = basePath;
         }
 
         public async Task UpdateDataAsync(CancellationToken cancellationToken)

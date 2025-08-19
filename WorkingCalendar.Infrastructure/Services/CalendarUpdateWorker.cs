@@ -1,8 +1,9 @@
 using Cronos;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace WorkingCalendar.Server.Infrastructure.Services
+namespace WorkingCalendar.Infrastructure.Services
 {
     public class CalendarUpdateWorker : BackgroundService
     {
