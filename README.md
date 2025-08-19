@@ -76,3 +76,16 @@ You can also verify that the table was created:
 kubectl exec -it <postgres-pod> -- \
   psql -U workingcalendar -d workingcalendar -c '\dt'
 ```
+
+### Post-install verification
+
+After installing the chart you can run the built-in Helm test to make sure
+the `workingcalendar` table schema matches expectations and contains sample
+data:
+
+```bash
+helm test workingcalendar
+```
+
+The test pod queries the database and fails if the table structure differs or
+no rows are present, allowing your deployment pipeline to stop on error.
