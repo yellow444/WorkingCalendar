@@ -38,3 +38,41 @@ cp -r tmp-data/{ru,kz,by,ua,uz} .
 XMLCalendar notes that the calendars are © xmlcalendar.ru. Review their
 repository or website before redistributing the data and provide attribution
 when required.
+
+## Helm deployment with database initialization
+
+The Helm chart in `k8s/` ships with a post-install hook that seeds PostgreSQL
+using the SQL found in `init.pssql/sql.sql`.
+
+### Running the hook
+
+Install the chart and enable the initializer:
+
+```bash
+helm install workingcalendar ./k8s \
+  --set initdb.enabled=true
+```
+
+To run a custom script instead, pass it at install time:
+
+```bash
+helm install workingcalendar ./k8s \
+  --set initdb.enabled=true \
+  --set-file initdb.script=/path/to/your.sql
+```
+
+### Troubleshooting
+
+Check the Job status and logs if initialization fails:
+
+```bash
+kubectl get jobs
+kubectl logs job/<release-name>-db-init
+```
+
+You can also verify that the table was created:
+
+```bash
+kubectl exec -it <postgres-pod> -- \
+  psql -U workingcalendar -d workingcalendar -c '\dt'
+```
