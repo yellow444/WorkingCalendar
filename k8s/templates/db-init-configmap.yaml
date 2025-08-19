@@ -7,5 +7,9 @@ metadata:
     {{- include "workingcalendar.labels" . | nindent 4 }}
 data:
   init.sql: |
+{{- if .Values.initdb.script }}
 {{ .Values.initdb.script | indent 4 }}
+{{- else }}
+{{ (.Files.Get "init.pssql/sql.sql") | indent 4 }}
+{{- end }}
 {{- end }}
