@@ -5,7 +5,7 @@ metadata:
     kompose.cmd: C:\Windows\system32\kompose.exe convert -f ..\docker-compose.yml
     kompose.controller.type: deployment
     kompose.service.expose: 231977.fornex.cloud
-    kompose.service.type: NodePort
+    kompose.service.type: LoadBalancer
     kompose.version: 1.26.0 (40646f47)
   name: workingcalendar-server
   namespace: workingcalendar
@@ -22,6 +22,6 @@ spec:
       targetPort: 20080
   selector:
     io.kompose.service: workingcalendar-server
-  externalIPs:
-  - 79.132.140.197
-  type: NodePort   
+  # externalIPs:
+  # - 79.132.140.197
+  type: LoadBalancer   

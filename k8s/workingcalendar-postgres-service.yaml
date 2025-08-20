@@ -19,5 +19,5 @@ spec:
       targetPort: 5432
   selector:
     io.kompose.service: workingcalendar-postgres
-  type: NodePort   
+  type: ClusterIP   
 
