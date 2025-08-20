@@ -8,6 +8,8 @@ services:
     build:
       context: .
       dockerfile: workingcalendar.server/Dockerfile
+    environment:
+      - ConnectionStrings__Postgres=Host=workingcalendar-postgres;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar
     ports:
       - 20080:20080
   workingcalendar-postgres:

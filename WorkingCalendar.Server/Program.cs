@@ -8,8 +8,9 @@ using WorkingCalendar.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<CalendarRepositoryOptions>(builder.Configuration.GetSection("CalendarData"));
+var connectionString = builder.Configuration.GetConnectionString("Postgres");
 builder.Services.AddDbContext<CalendarDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("CalendarDatabase")));
+    options.UseNpgsql(connectionString));
 builder.Services.AddScoped<ICalendarRepository, DbCalendarRepository>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.Configure<CalendarUpdateOptions>(builder.Configuration.GetSection("CalendarUpdate"));

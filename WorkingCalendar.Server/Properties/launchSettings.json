@@ -6,7 +6,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ConnectionStrings__Postgres": "Host=localhost;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:20080"
@@ -17,7 +18,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ConnectionStrings__Postgres": "Host=localhost;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:20080"
@@ -28,7 +30,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy",
+        "ConnectionStrings__Postgres": "Host=localhost;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar"
       }
     },
     "Container (Dockerfile)": {
@@ -37,7 +40,8 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_HTTP_PORTS": "20080",
-        //"ASPNETCORE_HTTPS_PORTS": "20443"
+        //"ASPNETCORE_HTTPS_PORTS": "20443",
+        "ConnectionStrings__Postgres": "Host=localhost;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar"
       },
       "publishAllPorts": true,
       "useSSL": false
