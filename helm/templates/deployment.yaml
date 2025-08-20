@@ -23,6 +23,16 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
           {{- end }}
+          {{- if .Values.db.connectionString }}
+            - name: ConnectionStrings__Postgres
+              value: {{ .Values.db.connectionString | quote }}
+          {{- else if and .Values.postgres.enabled .Values.postgres.auth.enabled }}
+            - name: ConnectionStrings__Postgres
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "workingcalendar.fullname" . }}-db
+                  key: connectionString
+          {{- end }}
           ports:
             - containerPort: {{ .Values.service.targetPort }}
           resources:

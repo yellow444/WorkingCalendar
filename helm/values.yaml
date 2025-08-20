@@ -31,6 +31,9 @@ ingress:
     secretName: tls-workingcalendar
     clusterIssuer: letsencrypt-production
 
+db:
+  connectionString: ""
+
 postgres:
   enabled: true
   image:
