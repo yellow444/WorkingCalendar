@@ -44,6 +44,14 @@ when required.
 The Helm chart in `k8s/` ships with a post-install hook that seeds PostgreSQL
 using the SQL found in `init.pssql/sql.sql`.
 
+### Database configuration
+
+The chart can either provision its own PostgreSQL instance or connect to an
+external database. Set `db.connectionString` to use an external PostgreSQL
+server; when this value is empty and `postgres.enabled=true`, the chart
+deploys a bundled Postgres and the application reads the generated connection
+string from the `ConnectionStrings__Postgres` environment variable.
+
 ### Running the hook
 
 Install the chart and enable the initializer:

@@ -1,4 +1,4 @@
-{{- if .Values.postgres.enabled }}
+{{- if and (not .Values.db.connectionString) .Values.postgres.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
