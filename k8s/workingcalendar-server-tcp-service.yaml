@@ -6,7 +6,6 @@ metadata:
     kompose.controller.type: deployment
     kompose.service.expose: 231977.fornex.cloud
     kompose.service.type: NodePort
-    # kompose.service.type: LoadBalancer
     kompose.version: 1.26.0 (40646f47)
   name: workingcalendar-server
   namespace: workingcalendar
@@ -14,7 +13,6 @@ metadata:
     io.kompose.service: workingcalendar-server
     app.kubernetes.io/name: workingcalendar
 spec:
-  # clusterIP: None    
   ports:
     - name: "http"
       port: 20080
@@ -22,12 +20,8 @@ spec:
     - name: "https"
       port: 20443
       targetPort: 20080
-    # - name: "20443"
-    #   port: 443
-    #   targetPort: 20443
   selector:
     io.kompose.service: workingcalendar-server
-  # type: LoadBalancer
   externalIPs:
   - 79.132.140.197
   type: NodePort   

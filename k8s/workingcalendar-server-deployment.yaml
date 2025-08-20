@@ -25,7 +25,6 @@ spec:
         kompose.controller.type: deployment
         kompose.service.expose: workingcalendar.ru
         kompose.service.type: LoadBalancer
-        # kompose.service.type: NodePort   
         kompose.version: 1.26.0 (40646f47)
       labels:
         io.kompose.service: workingcalendar-server
@@ -34,20 +33,12 @@ spec:
         - env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Production
-              # value: Development
             - name: ASPNETCORE_HTTP_PORTS
               value: '20080'
-            # - name: ASPNETCORE_URLS
-            #   value: http://*:20080
-            # - name: ASPNETCORE_HTTPS_PORTS
-            #   value: '443'
-            # - name: ASPNETCORE_URLS
-            #   value: 231977.fornex.cloud
           image: yellow444/workingcalendarserver:latest
           name: workingcalendar-server
           ports:
             - containerPort: 20080
-            # - containerPort: 20443
           resources:
             requests:
               cpu: 200m
@@ -55,10 +46,5 @@ spec:
             limits:
               cpu: 1000m
               memory: 512Mi
-          # dnsPolicy: "None"
-          # dnsConfig:
-          #   nameservers:
-          #     - 8.8.8.8  
-      # hostname: workingcalendar-server
       restartPolicy: Always
 status: {}

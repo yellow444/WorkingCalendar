@@ -1,12 +1,11 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: IssClusterIssueruer
 metadata:
   name: letsencrypt-production
-  namespace: workingcalendar
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: yellow444@email.ru
+    email: yellow444@gmail.com
     privateKeySecretRef:
       name: letsencrypt-production
     solvers:

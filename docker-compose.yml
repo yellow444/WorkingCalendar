@@ -10,13 +10,6 @@ services:
       dockerfile: workingcalendar.server/Dockerfile
     ports:
       - 20080:20080
-      # - 20443:20443
-    labels:
-      kompose.service.expose: "workingcalendar.ru"
-      kompose.controller.type: "deployment"
-      # kompose.service.type: "NodePort"
-    # networks:
-    #   workingcalendar:
   workingcalendar-postgres:
     image: postgres
     hostname: workingcalendar-postgres
@@ -26,25 +19,8 @@ services:
       - POSTGRES_ADMIN=workingcalendar
     ports:
       - 5432:5432
-    labels:
-      kompose.controller.type: "deployment"
-      kompose.service.type: "headless"
-      kompose.volume.type: "persistentVolumeClaim"
-    # networks:
-    #   workingcalendar:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.pssql:/docker-entrypoint-initdb.d/db.sql
 volumes:
   pgdata:
-
-# networks:
-#     workingcalendar:
-        # Общая сеть со смежными проектами
-        # name: 'workingcalendar'
-        # enable_ipv6: false
-        # ipam:
-        #   config:
-        #     - subnet: 2001:0DB8::/112
-
-    

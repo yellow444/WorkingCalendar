@@ -13,13 +13,11 @@ metadata:
     io.kompose.service: workingcalendar-postgres
     app: workingcalendar
 spec:
-  # clusterIP: None
   ports:
     - name: "5432"
       port: 5432
       targetPort: 5432
   selector:
     io.kompose.service: workingcalendar-postgres
-  # type: LoadBalancer
   type: NodePort   
 

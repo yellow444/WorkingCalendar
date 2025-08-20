@@ -2,8 +2,6 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   namespace: workingcalendar
-  labels:
-    io.kompose.service: workingcalendar-postgres-claim1
   name: workingcalendar-postgres-claim1
 spec:
   accessModes:
