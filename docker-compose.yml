@@ -7,7 +7,7 @@ services:
     container_name: workingcalendar-server
     build:
       context: .
-      dockerfile: workingcalendar.server/Dockerfile
+      dockerfile: WorkingCalendar.Server/Dockerfile
     environment:
       - ConnectionStrings__Postgres=Host=workingcalendar-postgres;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar
     ports:
