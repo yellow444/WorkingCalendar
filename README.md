@@ -39,6 +39,19 @@ XMLCalendar notes that the calendars are © xmlcalendar.ru. Review their
 repository or website before redistributing the data and provide attribution
 when required.
 
+## Checking migrations in CI
+
+To verify that Entity Framework Core migrations apply to a clean database, run
+the helper script `scripts/check-migrations.sh`. The script spins up a temporary
+PostgreSQL container and executes `dotnet ef database update` against it. Use in
+continuous integration to catch migration issues early:
+
+```bash
+./scripts/check-migrations.sh
+```
+
+The script exits with a non-zero status if the migrations fail.
+
 ## Helm deployment with database initialization
 
 The Helm chart in `k8s/` ships with a post-install hook that seeds PostgreSQL
