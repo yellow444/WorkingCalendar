@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using WorkingCalendar.Application;
 using WorkingCalendar.Infrastructure;
 using WorkingCalendar.Infrastructure.Services;
@@ -7,7 +8,9 @@ using WorkingCalendar.Infrastructure.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<CalendarRepositoryOptions>(builder.Configuration.GetSection("CalendarData"));
-builder.Services.AddSingleton<ICalendarRepository, FileCalendarRepository>();
+builder.Services.AddDbContext<CalendarDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("CalendarDatabase")));
+builder.Services.AddScoped<ICalendarRepository, DbCalendarRepository>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
 builder.Services.Configure<CalendarUpdateOptions>(builder.Configuration.GetSection("CalendarUpdate"));
 builder.Services.AddHttpClient<GitHubCalendarDataUpdater>(client =>
