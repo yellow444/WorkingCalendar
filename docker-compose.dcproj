@@ -21,17 +21,5 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
-    <None Include="k8s\lestencrypt-production.yaml" />
-    <None Include="k8s\lestencrypt-staging.yaml" />
-    <None Include="k8s\pgdata-persistentvolumeclaim.yaml" />
-    <None Include="k8s\ingress.yaml" />
-    <None Include="k8s\pv2.yaml" />
-    <None Include="k8s\pv1.yaml" />
-    <None Include="k8s\sc.yaml" />
-    <None Include="k8s\workingcalendar-postgres-claim1-persistentvolumeclaim.yaml" />
-    <None Include="k8s\workingcalendar-postgres-deployment.yaml" />
-    <None Include="k8s\workingcalendar-postgres-service.yaml" />
-    <None Include="k8s\workingcalendar-server-deployment.yaml" />
-    <None Include="k8s\workingcalendar-server-tcp-service.yaml" />
   </ItemGroup>
 </Project>
