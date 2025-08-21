@@ -1,0 +1,40 @@
+{{- if and .Values.initdb.enabled .Values.postgres.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "workingcalendar.fullname" . }}-db-init
+  labels:
+    {{- include "workingcalendar.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: db-init
+          image: "{{ .Values.initdb.image.repository }}:{{ .Values.initdb.image.tag }}"
+          command:
+            - sh
+            - -c
+            - psql -h {{ include "workingcalendar.fullname" . }}-postgres -U $PGUSER -f /scripts/init.sql
+          env:
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "workingcalendar.fullname" . }}-db
+                  key: username
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "workingcalendar.fullname" . }}-db
+                  key: password
+          volumeMounts:
+            - name: script
+              mountPath: /scripts
+      restartPolicy: OnFailure
+      volumes:
+        - name: script
+          configMap:
+            name: {{ include "workingcalendar.fullname" . }}-db-init
+{{- end }}

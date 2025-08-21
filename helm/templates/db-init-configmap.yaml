@@ -1,0 +1,15 @@
+{{- if and .Values.initdb.enabled .Values.postgres.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "workingcalendar.fullname" . }}-db-init
+  labels:
+    {{- include "workingcalendar.labels" . | nindent 4 }}
+data:
+  init.sql: |
+{{- if .Values.initdb.script }}
+{{ .Values.initdb.script | indent 4 }}
+{{- else }}
+{{ (.Files.Get "init.pssql/sql.sql") | indent 4 }}
+{{- end }}
+{{- end }}

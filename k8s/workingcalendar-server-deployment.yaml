@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workingcalendar-server
+  namespace: workingcalendar
+  labels:
+    app: workingcalendar
+    app.kubernetes.io/name: workingcalendar-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workingcalendar-server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: workingcalendar
+        app.kubernetes.io/name: workingcalendar-server
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_HTTP_PORTS
+              value: '20080'
+          image: yellow444/workingcalendarserver:latest
+          name: workingcalendar-server
+          ports:
+            - containerPort: 20080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+      restartPolicy: Always
+status: {}

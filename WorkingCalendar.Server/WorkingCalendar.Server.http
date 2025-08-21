@@ -1,0 +1,6 @@
+@WorkingCalendar.Server_HostAddress = http://localhost:20080
+
+GET {{WorkingCalendar.Server_HostAddress}}/WorkingCalendar/GetYearWorkingCalendar?year=2024&type=mssql&days=5
+Accept: application/json
+
+###
