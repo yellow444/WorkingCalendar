@@ -120,3 +120,33 @@ helm test workingcalendar
 
 The test pod queries the database and fails if the table structure differs or
 no rows are present, allowing your deployment pipeline to stop on error.
+
+## Развёртывание из папки k8s
+
+Перед применением манифестов создайте секреты с параметрами приложения. Например:
+
+```bash
+kubectl create secret generic workingcalendar-secrets \
+  --from-literal=ConnectionStrings__Postgres="postgres://user:pass@host:5432/workingcalendar"
+```
+
+Тот же секрет можно оформить YAML-манифестом:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: workingcalendar-secrets
+type: Opaque
+stringData:
+  ConnectionStrings__Postgres: "postgres://user:pass@host:5432/workingcalendar"
+```
+
+После создания секретов примените остальные файлы:
+
+```bash
+kubectl apply -f ./k8s/
+```
+
+Манифесты следует применять в таком порядке: сначала секреты, затем остальные ресурсы из `k8s/`.
+
