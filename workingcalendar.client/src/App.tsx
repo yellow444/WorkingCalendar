@@ -162,7 +162,7 @@ function App(this: any) {
         toggleLngLoad();
         sw ? setTheme(createTheme(getDesignTokens('dark'))) : setTheme(createTheme(getDesignTokens('light')));
         async function populateWeatherData() {
-            const response = await fetch(`WorkingCalendar/GetYearWorkingCalendar?year=${selectedYearValue}&type=${selectedDateValue}&days=${selectedDaysValue}`);
+            const response = await fetch(`/WorkingCalendar/GetYearWorkingCalendar?year=${selectedYearValue}&type=${selectedDateValue}&days=${selectedDaysValue}`);
             const data = await response.text();
             setText(data);
         };
