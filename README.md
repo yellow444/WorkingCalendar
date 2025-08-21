@@ -64,7 +64,7 @@ The script exits with a non-zero status if the migrations fail.
 
 ## Helm deployment with database initialization
 
-The Helm chart in `k8s/` ships with a post-install hook that seeds PostgreSQL
+The Helm chart in `helm/` ships with a post-install hook that seeds PostgreSQL
 using the SQL found in `init.pssql/sql.sql`.
 
 ### Database configuration
@@ -80,14 +80,14 @@ string from the `ConnectionStrings__Postgres` environment variable.
 Install the chart and enable the initializer:
 
 ```bash
-helm install workingcalendar ./k8s \
+helm install workingcalendar ./helm \
   --set initdb.enabled=true
 ```
 
 To run a custom script instead, pass it at install time:
 
 ```bash
-helm install workingcalendar ./k8s \
+helm install workingcalendar ./helm \
   --set initdb.enabled=true \
   --set-file initdb.script=/path/to/your.sql
 ```
