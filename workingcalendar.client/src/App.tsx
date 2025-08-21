@@ -162,9 +162,17 @@ function App(this: any) {
         toggleLngLoad();
         sw ? setTheme(createTheme(getDesignTokens('dark'))) : setTheme(createTheme(getDesignTokens('light')));
         async function populateWeatherData() {
-            const response = await fetch(`/WorkingCalendar/GetYearWorkingCalendar?year=${selectedYearValue}&type=${selectedDateValue}&days=${selectedDaysValue}`);
-            const data = await response.text();
-            setText(data);
+            try {
+                const response = await fetch(`/WorkingCalendar/GetYearWorkingCalendar?year=${selectedYearValue}&type=${selectedDateValue}&days=${selectedDaysValue}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.text();
+                setText(data);
+            } catch (error) {
+                console.error('Ошибка загрузки данных', error);
+                setText('Ошибка загрузки данных');
+            }
         };
         populateWeatherData();
         document.title = t('title'); 
