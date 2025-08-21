@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WorkingCalendar.Application;
+using System.Linq;
 
 namespace WorkingCalendar.Infrastructure;
 
@@ -22,5 +23,13 @@ public class DbCalendarRepository : ICalendarRepository
             throw new InvalidOperationException($"Calendar not found for {year} {culture}");
         }
         return entry.Xml;
+    }
+
+    public async Task<Dictionary<int, string>> GetAllCalendarsXmlAsync(string culture)
+    {
+        return await _context.CalendarEntries
+            .AsNoTracking()
+            .Where(e => e.Culture == culture)
+            .ToDictionaryAsync(e => e.Year, e => e.Xml);
     }
 }

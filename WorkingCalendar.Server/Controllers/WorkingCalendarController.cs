@@ -24,12 +24,12 @@ public class WorkingCalendarController : ControllerBase
     /// <summary>
     /// Generates SQL for the specified year.
     /// </summary>
-    /// <param name="year">Calendar year.</param>
+    /// <param name="year">Calendar year or "all" for all years.</param>
     /// <param name="type">Type of the generated SQL script.</param>
     /// <param name="days">Working days per week.</param>
     /// <returns>SQL script for the requested year.</returns>
     [HttpGet("GetYearWorkingCalendar")]
-    public async Task<ActionResult<string>> GetYearWorkingCalendar(int year, string type, int days)
+    public async Task<ActionResult<string>> GetYearWorkingCalendar(string year, string type, int days)
     {
         var sql = await _calendarService.GetYearSqlAsync(year, type, days);
         return Ok(sql);

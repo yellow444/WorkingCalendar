@@ -37,4 +37,27 @@ public class FileCalendarRepository : ICalendarRepository
         _cache[key] = xml;
         return xml;
     }
+
+    public async Task<Dictionary<int, string>> GetAllCalendarsXmlAsync(string culture)
+    {
+        var result = new Dictionary<int, string>();
+        var basePath = Path.IsPathRooted(_options.BasePath)
+            ? _options.BasePath
+            : Path.Combine(_environment.ContentRootPath, _options.BasePath);
+        var culturePath = Path.Combine(basePath, culture);
+        if (!Directory.Exists(culturePath))
+        {
+            return result;
+        }
+        foreach (var dir in Directory.GetDirectories(culturePath))
+        {
+            var name = Path.GetFileName(dir);
+            if (int.TryParse(name, out var year))
+            {
+                var xml = await GetCalendarXmlAsync(year, culture);
+                result[year] = xml;
+            }
+        }
+        return result;
+    }
 }
