@@ -29,9 +29,15 @@ spec:
       containers:
         - env:
             - name: POSTGRES_ADMIN
-              value: workingcalendar
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_ADMIN
             - name: POSTGRES_PASSWORD
-              value: workingcalendar
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
           image: postgres
           name: workingcalendar-postgres
           ports:
