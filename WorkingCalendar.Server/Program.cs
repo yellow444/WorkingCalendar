@@ -41,8 +41,12 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHealthChecks("/hc");
+
+// Раздача SPA (работает всегда)
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+// Swagger — только при Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -53,17 +57,12 @@ else
     app.UseExceptionHandler("/Error");
 }
 
-app.MapGet("/CheckDayWorkingCalendar", async (string data, string days, ICalendarService service) =>
-{
-    var date = DateTime.ParseExact(data, "dd.MM.yyyy", CultureInfo.InvariantCulture);
-    var result = await service.CheckDayAsync(date, int.Parse(days));
-    return Results.Ok(result);
-}).WithName("CheckDayWorkingCalendar");
+// --- тут твои API-эндпойнты ---
+// app.MapGet("/CheckDayWorkingCalendar", ...);
+// app.MapGet("/GetYearWorkingCalendar", ...);
+// app.MapControllers(); // если используешь контроллеры
 
-app.MapGet("/GetYearWorkingCalendar", async (string year, string type, string days, ICalendarService service) =>
-{
-    var result = await service.GetYearSqlAsync(int.Parse(year), type, int.Parse(days));
-    return Results.Ok(result);
-}).WithName("GetYearWorkingCalendar");
+// Fallback для SPA — ДОЛЖЕН идти ПОСЛЕДНИМ из маршрутов
 app.MapFallbackToFile("index.html");
+
 app.Run();

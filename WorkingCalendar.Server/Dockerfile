@@ -1,14 +1,14 @@
-# ---------- БАЗОВЫЙ RUNTIME СЛОЙ ----------
-FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:6d40ae71165cb8a4427477ae3b447b05c080330cabae08b0dae672552bcd34d8 AS base
+# ---------- Р‘РђР—РћР’Р«Р™ RUNTIME ----------
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
-# ---------- СБОРКА .NET + NODE.JS ДЛЯ JS SDK ----------
-FROM mcr.microsoft.com/dotnet/sdk:8.0@sha256:7fd287cec03e027e39be13fb06ca1347f1338c7a6ab4ad305d94d91852693f70 AS build
+# ---------- SDK + NODE.JS (РґР»СЏ JS SDK Рё СЃР±РѕСЂРєРё Vite) ----------
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Устанавливаем Node.js 22 (нужен для Microsoft.VisualStudio.JavaScript.Sdk)
+# Node.js РґР»СЏ Microsoft.VisualStudio.JavaScript.Sdk Рё СЃР±РѕСЂРєРё РєР»РёРµРЅС‚Р°
 RUN apt-get update \
  && apt-get install -y curl ca-certificates gnupg \
  && install -d -m 0755 /etc/apt/keyrings \
@@ -18,30 +18,39 @@ RUN apt-get update \
  && apt-get install -y nodejs \
  && node --version && npm --version
 
-# Копируем csproj’и — быстрый restore на чистом контексте
+# РљРѕРїРёСЂСѓРµРј csproj / esproj РґР»СЏ С‚РѕС‡РµС‡РЅРѕРіРѕ restore
 COPY WorkingCalendar.Server/WorkingCalendar.Server.csproj WorkingCalendar.Server/
 COPY WorkingCalendar.Application/WorkingCalendar.Application.csproj WorkingCalendar.Application/
 COPY WorkingCalendar.Infrastructure/WorkingCalendar.Infrastructure.csproj WorkingCalendar.Infrastructure/
 COPY WorkingCalendar.Domain/WorkingCalendar.Domain.csproj WorkingCalendar.Domain/
-
-# Если у тебя есть esproj (JS-проект) — тоже копируем, чтобы restore прошёл
+# РµСЃР»Рё РµСЃС‚СЊ esproj
 COPY workingcalendar.client/workingcalendar.client.esproj workingcalendar.client/
 
 RUN dotnet restore "WorkingCalendar.Server/WorkingCalendar.Server.csproj"
 
-# Копируем всё остальное исходники
+# РљРѕРїРёСЂСѓРµРј РІСЃРµ РёСЃС…РѕРґРЅРёРєРё
 COPY . .
 
-# Собираем
+# --- РЎР‘РћР РљРђ Vite РєР»РёРµРЅС‚Р° ---
+WORKDIR /src/workingcalendar.client
+# РµСЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ npm ci вЂ” Р·Р°РјРµРЅРё РєРѕРјР°РЅРґСѓ
+RUN npm ci || npm install
+RUN npm run build
+
+# --- РЎР‘РћР РљРђ .NET ---
 WORKDIR /src/WorkingCalendar.Server
 RUN dotnet build "WorkingCalendar.Server.csproj" -c Release -o /app/build
 
-# ---------- ПУБЛИКАЦИЯ ----------
+# ---------- РџРЈР‘Р›РРљРђР¦РРЇ .NET + РљРћРџРРЇ VITE Р’ wwwroot ----------
 FROM build AS publish
 WORKDIR /src/WorkingCalendar.Server
 RUN dotnet publish "WorkingCalendar.Server.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# ---------- ФИНАЛЬНЫЙ ОБРАЗ ----------
+# РљР»Р°РґС‘Рј СЃРѕР±СЂР°РЅРЅС‹Р№ С„СЂРѕРЅС‚ РІ wwwroot
+RUN mkdir -p /app/publish/wwwroot
+COPY --from=build /src/workingcalendar.client/dist/ /app/publish/wwwroot/
+
+# ---------- Р¤РРќРђР› ----------
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .

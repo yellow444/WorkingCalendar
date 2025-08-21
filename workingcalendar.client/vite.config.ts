@@ -1,33 +1,22 @@
-import { fileURLToPath, URL } from 'node:url';
-import { defineConfig } from 'vite';
-import plugin from '@vitejs/plugin-react';
-import { env } from 'process';
-
-const target = env.ASPNETCORE_HTTPS_PORT
-  ? `http://localhost:${env.ASPNETCORE_HTTPS_PORT}`
-  : env.ASPNETCORE_URLS
-    ? env.ASPNETCORE_URLS.split(';')[0]
-    : 'http://localhost:80';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [plugin()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    plugins: [react()],
+    base: "/", // если будет подпрефикс (Ingress), сменишь на "/app/" и добавишь UsePathBase("/app")
+    build: {
+        outDir: "../WorkingCalendar.Server/wwwroot",
+        emptyOutDir: true,
+        assetsDir: "assets",
+        sourcemap: true,
     },
-  },
-  server: {
-    proxy: {
-      '^/WorkingCalendar': {
-        target,
-        secure: false,
-      },
-    },
-    port: 3000,
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/tests/setup.ts',
-  },
+    server: {
+        port: 5173,
+        strictPort: true,
+        proxy: {
+            "/CheckDayWorkingCalendar": "http://localhost:8080",
+            "/GetYearWorkingCalendar": "http://localhost:8080",
+            "/hc": "http://localhost:8080"
+        }
+    }
 });

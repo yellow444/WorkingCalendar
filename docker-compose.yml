@@ -25,10 +25,4 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
       - ./init.pssql:/docker-entrypoint-initdb.d
-  workingcalendar-client:
-    build:
-      context: .
-      dockerfile: WorkingCalendar.Client/Dockerfile
-    ports:
-      - "3000:3000"
 

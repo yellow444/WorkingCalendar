@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\workingcalendar.client\workingcalendar.client.esproj">
+    <ProjectReference Include="..\workingcalendar.client\workingcalendar.client.esproj"  Condition="'$(Configuration)' == 'Debug'">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\WorkingCalendar.Application\WorkingCalendar.Application.csproj" />
@@ -57,5 +57,11 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="wwwroot\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\**" CopyToOutputDirectory="Never" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>
