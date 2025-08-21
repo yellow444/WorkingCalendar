@@ -1,17 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\Windows\system32\kompose.exe convert -f ..\docker-compose.yml
-    kompose.controller.type: deployment
-    kompose.service.expose: 231977.fornex.cloud
-    kompose.service.type: LoadBalancer
-    kompose.version: 1.26.0 (40646f47)
   name: workingcalendar-server
   namespace: workingcalendar
   labels:
-    io.kompose.service: workingcalendar-server
-    app.kubernetes.io/name: workingcalendar
+    app: workingcalendar
+    app.kubernetes.io/name: workingcalendar-server
 spec:
   ports:
     - name: "http"
@@ -21,7 +15,7 @@ spec:
       port: 20443
       targetPort: 20080
   selector:
-    io.kompose.service: workingcalendar-server
+    app.kubernetes.io/name: workingcalendar-server
   # externalIPs:
   # - 79.132.140.197
   type: LoadBalancer   
