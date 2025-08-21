@@ -1,53 +1,41 @@
 import { fileURLToPath, URL } from 'node:url';
-
 import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
-import fs from 'fs';
-import path from 'path';
-import child_process from 'child_process';
 import { env } from 'process';
 
-const baseFolder =
-    env.APPDATA !== undefined && env.APPDATA !== ''
-        ? `${env.APPDATA}/ASP.NET/https`
-        : `${env.HOME}/.aspnet/https`;
+function resolveTarget(): string {
+  // 1) Явный ASPNETCORE_URLS (например, "http://localhost:8080;https://localhost:7080")
+  const urls = env.ASPNETCORE_URLS?.split(';').filter(Boolean);
+  if (urls && urls.length > 0) return urls[0];
 
-const certificateName = "workingcalendar.client";
-const certFilePath = path.join(baseFolder, `${certificateName}.pem`);
-const keyFilePath = path.join(baseFolder, `${certificateName}.key`);
+  // 2) Раздельные переменные портов (dev)
+  if (env.ASPNETCORE_HTTPS_PORT) return `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`;
+  if (env.ASPNETCORE_HTTP_PORT)  return `http://localhost:${env.ASPNETCORE_HTTP_PORT}`;
 
-// if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-//     if (0 !== child_process.spawnSync('dotnet', [
-//         'dev-certs',
-//         'https',
-//         '--export-path',
-//         certFilePath,
-//         '--format',
-//         'Pem',
-//         '--no-password',
-//     ], { stdio: 'inherit', }).status) {
-//         throw new Error("Could not create certificate.");
-//     }
-// }
+  // 3) По умолчанию — контейнерный порт API
+  return 'http://localhost:8080';
+}
 
-const target = env.ASPNETCORE_HTTPS_PORT ? `http://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'http://localhost:8080';
-console.log(target);
+const target = resolveTarget();
+console.log('[VITE PROXY TARGET]:', target);
+
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
-    },
-    server: {
-        proxy: {
-            '^/WorkingCalendar': {
-                target,
-                secure: false
-            }
-        },
-        port: 3000
+  plugins: [plugin()],
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
+  },
+  server: {
+    // Выровняли с SpaProxyServerUrl из .csproj
+    port: 5173,
+    proxy: {
+      // Проксируем вызовы API к бэкенду без SSL-ошибок
+      '^/WorkingCalendar': {
+        target,
+        changeOrigin: true,
+        secure: false
+        // rewrite не делаем, чтобы путь /WorkingCalendar/... дошёл как есть
+      }
     }
-})
+  }
+});

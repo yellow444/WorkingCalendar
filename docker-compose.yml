@@ -2,17 +2,19 @@ version: '3.4'
 
 services:
   workingcalendar-server:
-    # image: yellow444/workingcalendarserver:latest
-    hostname: workingcalendar-server
-    container_name: workingcalendar-server
     build:
       context: .
-      dockerfile: WorkingCalendar.Server/Dockerfile
+      dockerfile: ./WorkingCalendar.Server/Dockerfile
+    container_name: workingcalendar-server
     environment:
-      - ConnectionStrings__Postgres=Host=workingcalendar-postgres;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar
+      ASPNETCORE_URLS: http://0.0.0.0:8080
+      ConnectionStrings__Postgres: Host=workingcalendar-postgres;Port=5432;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar
     ports:
-      - 20080:20080
-      - 8080:8080
+      - "8080:8080"
+    depends_on:
+      workingcalendar-postgres:
+        condition: service_healthy
+    restart: unless-stopped
   workingcalendar-postgres:
     image: postgres
     hostname: workingcalendar-postgres
@@ -21,8 +23,12 @@ services:
       - POSTGRES_PASSWORD=workingcalendar
       - POSTGRES_ADMIN=workingcalendar
     ports:
-      - 5432
+      - 5432      
     volumes:
       - ./pgdata:/var/lib/postgresql/data
       - ./init.pssql:/docker-entrypoint-initdb.d
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workingcalendar -d workingcalendar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
