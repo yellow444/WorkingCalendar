@@ -1,0 +1,49 @@
+{{- if and .Values.postgres.enabled .Values.postgres.auth.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "workingcalendar.fullname" . }}-db-verify
+  labels:
+    {{- include "workingcalendar.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  containers:
+    - name: db-verify
+      image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          PSQL="psql -h {{ include "workingcalendar.fullname" . }}-postgres -U $PGUSER -d $PGDATABASE -t -A"
+          schema=$($PSQL -c "SELECT column_name || '|' || data_type FROM information_schema.columns WHERE table_name='workingcalendar' ORDER BY ordinal_position")
+          expected=$'id|integer\ndateday|date\nisworkingday|bit'
+          if [ "$schema" != "$expected" ]; then
+            echo "Schema mismatch"
+            echo "Expected:"; echo "$expected"
+            echo "Got:"; echo "$schema"
+            exit 1
+          fi
+          count=$($PSQL -c "SELECT COUNT(*) FROM workingcalendar")
+          if [ "$count" -lt 1 ]; then
+            echo "No rows found in workingcalendar table"
+            exit 1
+          fi
+          echo "Schema and sample rows verified"
+      env:
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "workingcalendar.fullname" . }}-db
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "workingcalendar.fullname" . }}-db
+              key: password
+        - name: PGDATABASE
+          value: workingcalendar
+  restartPolicy: Never
+{{- end }}

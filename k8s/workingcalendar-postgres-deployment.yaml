@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Windows\system32\kompose.exe convert -f ..\docker-compose.yml
+    kompose.controller.type: deployment
+    kompose.service.type: headless
+    kompose.version: 1.26.0 (40646f47)
+    kompose.volume.type: persistentVolumeClaim
+  name: workingcalendar-postgres
+  namespace: workingcalendar
+  labels:
+    io.kompose.service: workingcalendar-postgres
+    app: workingcalendar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: workingcalendar-postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Windows\system32\kompose.exe convert -f ..\docker-compose.yml
+        kompose.controller.type: deployment
+        kompose.service.type: headless
+        kompose.version: 1.26.0 (40646f47)
+        kompose.volume.type: persistentVolumeClaim
+      labels:
+        io.kompose.service: workingcalendar-postgres
+    spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute" 
+      containers:
+        - env:
+            - name: POSTGRES_ADMIN
+              value: workingcalendar
+            - name: POSTGRES_PASSWORD
+              value: workingcalendar
+          image: postgres
+          name: workingcalendar-postgres
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pgdata
+            - mountPath: /docker-entrypoint-initdb.d/db.sql
+              name: workingcalendar-postgres-claim1
+      hostname: workingcalendar-postgres
+      restartPolicy: Always
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgdata
+        - name: workingcalendar-postgres-claim1
+          persistentVolumeClaim:
+            claimName: workingcalendar-postgres-claim1
+status: {}
