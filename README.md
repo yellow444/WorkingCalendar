@@ -14,6 +14,16 @@ Here are some examples of why this might be useful:
 
 Thus, this table can be a useful tool for managing business processes that depend on the calendar of holidays and weekends in Russia.
 
+## Port configuration
+
+The backend listens on port **8080**. Docker and `launchSettings.json` expose the same port, and the Vite dev server proxies API calls to it. When running locally, set
+
+```bash
+ASPNETCORE_URLS=http://localhost:8080 dotnet run
+```
+
+or export `ASPNETCORE_HTTP_PORT=8080` so that both server and client target the same address.
+
 ## XML Calendar Data Source
 
 The project relies on official calendar data from the
