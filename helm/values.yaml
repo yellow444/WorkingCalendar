@@ -1,0 +1,53 @@
+replicaCount: 1
+
+image:
+  repository: yellow444/workingcalendarserver
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 20080
+  targetPort: 20080
+
+env:
+  ASPNETCORE_ENVIRONMENT: Production
+  ASPNETCORE_HTTP_PORTS: "20080"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  host: workingcalendar.ru
+  tls:
+    enabled: true
+    secretName: tls-workingcalendar
+    clusterIssuer: letsencrypt-production
+
+db:
+  connectionString: ""
+
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "15"
+  resources: {}
+  auth:
+    enabled: true
+    username: workingcalendar
+    password: workingcalendar
+
+initdb:
+  enabled: false
+  image:
+    repository: postgres
+    tag: "15"
+  script: ""

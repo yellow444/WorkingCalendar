@@ -1,0 +1,141 @@
+﻿#root {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+th,
+td {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.bio {
+  white-space: pre-line;
+  /* or pre-wrap */
+  height: 18.75rem;
+}
+
+/* The container */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 2.188rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  font-size: 1.375rem;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.563rem;
+  width: 1.563rem;
+  background-color: #eee;
+  border-radius: 1.563rem;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input~.checkmark {
+  background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked~.checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked~.checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 0.563rem;
+  top: 0.313rem;
+  width: 0.313rem;
+  height: 0.625rem;
+  border: solid white;
+  border-width: 0 0.188rem 0.188rem 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.todoName {
+  margin: 0 0.625rem;
+}
+
+
+
+label {
+  cursor: pointer;
+}
+
+.flag {
+  cursor: pointer;
+}
+
+
+.tooltip {
+  position: absolute;
+  display: inline-block;
+  
+}
+
+.tooltiptext {
+  visibility: hidden;
+  width: 7.5rem;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 0.385rem;
+  padding: 0.313rem 0;
+  overflow: hidden;
+  /* Position the tooltip */
+  position: absolute; 
+  top: 0; right: 0;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  content: "";
+  visibility: visible;
+}
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -0.313rem;
+  border-width: 0.313rem;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+ 

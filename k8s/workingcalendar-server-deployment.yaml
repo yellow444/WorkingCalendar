@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Windows\system32\kompose.exe convert -f ..\docker-compose.yml
+    kompose.controller.type: deployment
+    kompose.service.expose: workingcalendar.ru
+    kompose.service.type: LoadBalancer
+    kompose.version: 1.26.0 (40646f47)
+  name: workingcalendar-server
+  namespace: workingcalendar
+  labels:
+    io.kompose.service: workingcalendar-server
+    app.kubernetes.io/name: workingcalendar
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: workingcalendar-server
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Windows\system32\kompose.exe convert -f ..\docker-compose.yml
+        kompose.controller.type: deployment
+        kompose.service.expose: workingcalendar.ru
+        kompose.service.type: LoadBalancer
+        kompose.version: 1.26.0 (40646f47)
+      labels:
+        io.kompose.service: workingcalendar-server
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_HTTP_PORTS
+              value: '20080'
+          image: yellow444/workingcalendarserver:latest
+          name: workingcalendar-server
+          ports:
+            - containerPort: 20080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+      restartPolicy: Always
+status: {}

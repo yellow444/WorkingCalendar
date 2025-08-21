@@ -1,0 +1,37 @@
+{{- if and (not .Values.db.connectionString) .Values.postgres.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "workingcalendar.fullname" . }}-postgres
+  labels:
+    {{- include "workingcalendar.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "workingcalendar.fullname" . }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ include "workingcalendar.fullname" . }}-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "workingcalendar.fullname" . }}-db
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "workingcalendar.fullname" . }}-db
+                  key: password
+          ports:
+            - containerPort: 5432
+          resources:
+            {{- toYaml .Values.postgres.resources | nindent 12 }}
+{{- end }}

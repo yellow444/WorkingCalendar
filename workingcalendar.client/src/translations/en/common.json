@@ -1,0 +1,10 @@
+{
+  "welcome": "The \"WorkingCalendar\" table in the database is intended to store information about holidays and weekends in Russia. This is useful for applications that need to consider the schedule of work based on the calendar of holidays and weekends.",
+  "hello": "Working Calendar",
+  "Switch theme": "Switch theme",
+  "dark": "dark",
+  "light": "light",
+  "workweek": "Workweek (days)",
+  "years": "Years",
+  "title": "Working Calendar"
+}
