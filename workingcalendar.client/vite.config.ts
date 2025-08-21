@@ -9,8 +9,10 @@ function resolveTarget(): string {
   if (urls && urls.length > 0) return urls[0];
 
   // 2) Раздельные переменные портов (dev)
-  if (env.ASPNETCORE_HTTPS_PORT) return `https://localhost:${env.ASPNETCORE_HTTPS_PORT}`;
-  if (env.ASPNETCORE_HTTP_PORT)  return `http://localhost:${env.ASPNETCORE_HTTP_PORT}`;
+  const httpsPort = env.ASPNETCORE_HTTPS_PORTS ?? env.ASPNETCORE_HTTPS_PORT;
+  if (httpsPort) return `https://localhost:${httpsPort.split(';')[0]}`;
+  const httpPort = env.ASPNETCORE_HTTP_PORTS ?? env.ASPNETCORE_HTTP_PORT;
+  if (httpPort)  return `http://localhost:${httpPort.split(';')[0]}`;
 
   // 3) По умолчанию — контейнерный порт API
   return 'http://localhost:8080';
