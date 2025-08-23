@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: workingcalendar
+  namespace: workingcalendar
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production 
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: workingcalendar.ru
+    http:
+      paths:
+      - backend:
+          service:
+            name: workingcalendar-server
+            port:
+              number: 20080
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - workingcalendar.ru
+    secretName: tls-231977.fornex.cloud-secret-prod

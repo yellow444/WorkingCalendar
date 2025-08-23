@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: workingcalendar-postgres
+  namespace: workingcalendar
+  labels:
+    app: workingcalendar
+    app.kubernetes.io/name: workingcalendar-postgres
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  selector:
+    app.kubernetes.io/name: workingcalendar-postgres
+  type: ClusterIP   
+

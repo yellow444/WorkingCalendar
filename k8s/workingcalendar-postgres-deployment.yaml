@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workingcalendar-postgres
+  namespace: workingcalendar
+  labels:
+    app: workingcalendar
+    app.kubernetes.io/name: workingcalendar-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: workingcalendar-postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: workingcalendar
+        app.kubernetes.io/name: workingcalendar-postgres
+    spec:
+      tolerations:
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute" 
+      containers:
+        - env:
+            - name: POSTGRES_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_ADMIN
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          image: postgres
+          name: workingcalendar-postgres
+          ports:
+            - containerPort: 5432
+          resources: {}
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pgdata
+            - mountPath: /docker-entrypoint-initdb.d/db.sql
+              name: workingcalendar-postgres-claim1
+      hostname: workingcalendar-postgres
+      restartPolicy: Always
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgdata
+        - name: workingcalendar-postgres-claim1
+          persistentVolumeClaim:
+            claimName: workingcalendar-postgres-claim1
+status: {}

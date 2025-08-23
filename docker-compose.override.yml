@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+  workingcalendar-server:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=20080
+      # - ASPNETCORE_HTTPS_PORTS=20443
+      - ConnectionStrings__Postgres=Host=workingcalendar-postgres;Database=workingcalendar;Username=workingcalendar;Password=workingcalendar
+    ports:
+      - "20080"
+      - "8080"
+      # - "20443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
